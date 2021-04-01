@@ -77,14 +77,14 @@ public class Library {
 			if (pGenerationParameters.filter(show)) {
 				for (Episode episode : show) {
 					if (pGenerationParameters.filter(episode)) {
-						watchlist.addWatchable(episode);
+						watchlist.addWatchableCommand(episode);
 					}
 				}
 			}
 		}
 		for (Movie movie : aMovies) {
 			if (pGenerationParameters.filter(movie)) {
-				watchlist.addWatchable(movie);
+				watchlist.addWatchableCommand(movie);
 			}
 		}
 		return watchlist;

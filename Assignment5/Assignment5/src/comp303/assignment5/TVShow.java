@@ -15,9 +15,7 @@ import comp303.assignment5.TVShow.Episode;
 /**
  * Represents a single TV show, with at least a title, language, and publishing studio. Each TVShow aggregates episodes.
  */
-public class TVShow implements Watchable, Bingeable<Episode> {
-	
-	private String aTitle;
+public class TVShow  extends AbstractWatchable implements Bingeable<Episode> {
 	private Language aLanguage;
 	private String aStudio;
 	private Map<String, String> aInfo;
@@ -25,9 +23,6 @@ public class TVShow implements Watchable, Bingeable<Episode> {
 	
 	private List<Episode> aEpisodes = new ArrayList<>();
 	private int aNextToWatch;
-	
-	//To implement the observer pattern, record the Watchlists which added this TVShow
-		private ArrayList<WatchList> observers = new ArrayList<WatchList>();
 	
 	/**
 	 * Creates a TVShow with required metadata about the show.
@@ -53,10 +48,8 @@ public class TVShow implements Watchable, Bingeable<Episode> {
 	
 	@Override
 	public void watch() {
-		//When we watch the TVShow, we need to notify all of observers
-		for(WatchList o : this.observers) {
-			o.notifyToUpdate(this);
-		}
+		//Need call the super method here
+		super.watch();
 		
 		for (Episode episode : aEpisodes) {
 			if (episode.isValid()) {
@@ -65,9 +58,6 @@ public class TVShow implements Watchable, Bingeable<Episode> {
 		}
 	}
 	
-	public String getTitle() {
-		return aTitle;
-	}
 	
 	public Language getLanguage() {
 		return aLanguage;
@@ -155,7 +145,7 @@ public class TVShow implements Watchable, Bingeable<Episode> {
 		Episode episode = aPrototype.get().clone();
 		episode.aEpisodeNumber = aEpisodes.size() + 1;
 		episode.aPath = pPath;
-		episode.aEpisodeTitle = pTitle;
+		episode.aTitle = pTitle;
 		aEpisodes.add(episode);
 		return episode;
 	}
@@ -204,35 +194,16 @@ public class TVShow implements Watchable, Bingeable<Episode> {
 		return Collections.unmodifiableList(aEpisodes).iterator();
 	}
 	
-
-	@Override
-	public void acceptList(WatchList w) {
-		// TODO Auto-generated method stub
-		assert w != null;
-		this.observers.add(w);
-	}
-
-	@Override
-	public void withdrawtList(WatchList w) {
-		// TODO Auto-generated method stub
-		assert w != null;
-		this.observers.remove(w);
-	}
-	
 	/**
 	 * Represents a single episode, with at least a title, and an episode number. Each episode is identified by its path
 	 * on the file system.
 	 */
-	public class Episode implements Sequenceable<Episode>, Cloneable {
+	public class Episode extends AbstractWatchable implements Sequenceable<Episode>, Cloneable {
 		
 		private File aPath;
-		private String aEpisodeTitle;
 		private int aEpisodeNumber;
 		private Map<String, String> aCast = new HashMap<>();
 		private Map<String, String> aTags = new HashMap<>();
-		
-		//To implement the observer pattern, record the Watchlists which added this Episode
-		private ArrayList<WatchList> observers = new ArrayList<WatchList>(); 
 		
 		/**
 		 * Creates an episode from the file path. This method should not be called by a client. Use
@@ -247,16 +218,14 @@ public class TVShow implements Watchable, Bingeable<Episode> {
 		 */
 		private Episode(int pEpisodeNumber, String pTitle, File pPath) {
 			aPath = pPath;
-			aEpisodeTitle = pTitle;
+			aTitle = pTitle;
 			aEpisodeNumber = pEpisodeNumber;
 		}
 		
 		@Override
 		public void watch() {
-			//When we watch the episode, we need to notify all of observers
-			for(WatchList o : this.observers) {
-				o.notifyToUpdate(this);
-			}
+			//Need call the super method here
+			super.watch();
 			System.out.println("Now watching " + TVShow.this.getTitle() + " [" + aEpisodeNumber + "]: " + aTitle);
 		}
 		
@@ -267,10 +236,6 @@ public class TVShow implements Watchable, Bingeable<Episode> {
 		
 		public TVShow getTVShow() {
 			return TVShow.this;
-		}
-		
-		public String getTitle() {
-			return aEpisodeTitle;
 		}
 		
 		public String getStudio() {
@@ -354,20 +319,6 @@ public class TVShow implements Watchable, Bingeable<Episode> {
 				assert false;
 				return null;
 			}
-		}
-
-		@Override
-		public void acceptList(WatchList w) {
-			// TODO Auto-generated method stub
-			assert w != null;
-			this.observers.add(w);
-		}
-
-		@Override
-		public void withdrawtList(WatchList w) {
-			// TODO Auto-generated method stub
-			assert w != null;
-			this.observers.remove(w);
 		}
 	}
 

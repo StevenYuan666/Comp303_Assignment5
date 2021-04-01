@@ -6,16 +6,6 @@ package comp303.assignment5;
 interface Watchable {
 	
 	/**
-	 * When add a watchable object to the watchlist, add such list to the private field
-	 */
-	public void acceptList(WatchList w);
-	
-	/**
-	 * When remove a watchable object of the watchlist, remove such list in the private field
-	 */
-	public void withdrawtList(WatchList w);
-	
-	/**
 	 * Plays the video to the user
 	 * @pre isValid()
 	 */

@@ -1,7 +1,6 @@
 package comp303.assignment5;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,11 +8,10 @@ import java.util.Map;
  * Represents a single movie, with at least a title, language, and publishing studio. Each movie is identified by its
  * path on the file system.
  */
-public class Movie implements Sequenceable<Movie> {
+public class Movie extends AbstractWatchable implements Sequenceable<Movie> {
 	
 	private final File aPath;
 	
-	private String aTitle;
 	private Language aLanguage;
 	private String aStudio;
 	
@@ -52,10 +50,8 @@ public class Movie implements Sequenceable<Movie> {
 	
 	@Override
 	public void watch() {
-		//When we watch the movie, we need to notify all of observers
-		for(WatchList o : this.observers) {
-			o.notifyToUpdate(this);
-		}
+		//Need call the super method here
+		super.watch();
 		
 		// Just a stub.
 		// We don't expect you to implement a full media player!
@@ -65,10 +61,6 @@ public class Movie implements Sequenceable<Movie> {
 	@Override
 	public boolean isValid() {
 		return aPath.isFile() && aPath.canRead();
-	}
-	
-	public String getTitle() {
-		return aTitle;
 	}
 	
 	public Language getLanguage() {
