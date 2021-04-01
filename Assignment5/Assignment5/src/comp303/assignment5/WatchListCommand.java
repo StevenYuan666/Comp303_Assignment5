@@ -6,7 +6,5 @@ public interface WatchListCommand {
 	
 	Optional<AbstractWatchable> execute();
 	
-	Optional<AbstractWatchable> undo();
-	
-	Optional<AbstractWatchable> redo();
+	void undo();
 }

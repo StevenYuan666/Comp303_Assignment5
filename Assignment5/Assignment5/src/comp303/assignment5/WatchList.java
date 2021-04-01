@@ -59,17 +59,9 @@ public class WatchList implements Bingeable<AbstractWatchable>, Observer {
 			}
 
 			@Override
-			public Optional<AbstractWatchable> undo() {
+			public void undo() {
 				// TODO Auto-generated method stub
 				aName = previousName;
-				return Optional.empty();
-			}
-
-			@Override
-			public Optional<AbstractWatchable> redo() {
-				// TODO Auto-generated method stub
-				aName = currentName;
-				return Optional.empty();
 			}
 		};
 		setName.execute();
@@ -100,24 +92,15 @@ public class WatchList implements Bingeable<AbstractWatchable>, Observer {
 			@Override
 			public Optional<AbstractWatchable> execute() {
 				// TODO Auto-generated method stub
-				addWatchable(pWatchable);
-				return Optional.empty();
-			}
-
-			@Override
-			public Optional<AbstractWatchable> undo() {
-				// TODO Auto-generated method stub
-				removeWatchable(toRemove);
-				return Optional.empty();
-			}
-
-			@Override
-			public Optional<AbstractWatchable> redo() {
-				// TODO Auto-generated method stub
 				addWatchable(toAdd);
 				return Optional.empty();
 			}
-			
+
+			@Override
+			public void undo() {
+				// TODO Auto-generated method stub
+				removeWatchable(toRemove);
+			}
 		};
 		addWatchable.execute();
 		this.doneByUser.add(addWatchable);
@@ -146,27 +129,20 @@ public class WatchList implements Bingeable<AbstractWatchable>, Observer {
 		WatchListCommand removeWatchable = new WatchListCommand() {
 			AbstractWatchable toAdd = aList.get(pIndex);
 			int recover = aNext;
-			int redo = pIndex;
+			int toRemove = pIndex;
 			
 			@Override
 			public Optional<AbstractWatchable> execute() {
 				// TODO Auto-generated method stub
-				return Optional.of(removeWatchable(pIndex));
+				return Optional.of(removeWatchable(toRemove));
 			}
 
 			@Override
-			public Optional<AbstractWatchable> undo() {
+			public void undo() {
+				//aNext might be changed in remove execution, need to recover it here
 				aNext = recover;
 				addWatchable(toAdd);
-				return Optional.empty();
 			}
-
-			@Override
-			public Optional<AbstractWatchable> redo() {
-				// TODO Auto-generated method stub
-				return Optional.of(removeWatchable(redo));
-			}
-			
 		};
 		this.doneByUser.add(removeWatchable);
 		this.doneByUndo.clear();
@@ -191,21 +167,10 @@ public class WatchList implements Bingeable<AbstractWatchable>, Observer {
 			}
 
 			@Override
-			public Optional<AbstractWatchable> undo() {
+			public void undo() {
 				// TODO Auto-generated method stub
+				//Just need to simply recover the value of aNext here, other status not changed
 				aNext = recover;
-				return Optional.empty();
-			}
-
-			@Override
-			public Optional<AbstractWatchable> redo() {
-				// TODO Auto-generated method stub
-				AbstractWatchable next = aList.get(aNext);
-				aNext++;
-				if (aNext >= aList.size()) {
-					aNext = 0;
-				}
-				return Optional.of(next);
 			}
 		};
 		this.doneByUser.add(getNext);
@@ -225,17 +190,9 @@ public class WatchList implements Bingeable<AbstractWatchable>, Observer {
 			}
 
 			@Override
-			public Optional<AbstractWatchable> undo() {
+			public void undo() {
 				// TODO Auto-generated method stub
 				aNext = recover;
-				return Optional.empty();
-			}
-
-			@Override
-			public Optional<AbstractWatchable> redo() {
-				// TODO Auto-generated method stub
-				aNext = 0;
-				return Optional.empty();
 			}
 		};
 		reset.execute();
@@ -243,25 +200,24 @@ public class WatchList implements Bingeable<AbstractWatchable>, Observer {
 		this.doneByUndo.clear();
 	}
 	
-	public Optional<AbstractWatchable> undo() {
+	public void undo() {
 		if(!this.doneByUser.isEmpty()) {
 			WatchListCommand toUndo = this.doneByUser.pop();
 			this.doneByUndo.add(toUndo);
-			return toUndo.undo();
+			toUndo.undo();
 		}
-		return Optional.empty();
 	}
 	
 	public Optional<AbstractWatchable> redo(){
 		if(!this.doneByUndo.isEmpty()) {
 			WatchListCommand toRedo = this.doneByUndo.pop();
 			this.doneByUser.add(toRedo);
-			return toRedo.redo();
+			return toRedo.execute();
 		}
 		else if(this.doneByUndo.isEmpty() && !this.doneByUser.isEmpty()) {
 			WatchListCommand toDo = this.doneByUser.peek();
 			//感觉这里可能会有问题
-			return toDo.redo();
+			return toDo.execute();
 		}
 		return Optional.empty();
 	}
