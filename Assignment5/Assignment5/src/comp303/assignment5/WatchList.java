@@ -65,8 +65,9 @@ public class WatchList implements Bingeable<AbstractWatchable>, Observer {
 			}
 		};
 		setName.execute();
-		this.doneByUser.add(setName);
+		this.doneByUser.push(setName);
 		this.doneByUndo.clear();
+		this.doneByUndo.push(setName);
 	}
 	
 	/**
@@ -103,8 +104,9 @@ public class WatchList implements Bingeable<AbstractWatchable>, Observer {
 			}
 		};
 		addWatchable.execute();
-		this.doneByUser.add(addWatchable);
+		this.doneByUser.push(addWatchable);
 		this.doneByUndo.clear();
+		this.doneByUndo.push(addWatchable);
 	}
 	
 	/**
@@ -144,8 +146,9 @@ public class WatchList implements Bingeable<AbstractWatchable>, Observer {
 				addWatchable(toAdd);
 			}
 		};
-		this.doneByUser.add(removeWatchable);
+		this.doneByUser.push(removeWatchable);
 		this.doneByUndo.clear();
+		this.doneByUndo.push(removeWatchable);
 		return removeWatchable.execute().get();
 	}
 	
@@ -173,8 +176,9 @@ public class WatchList implements Bingeable<AbstractWatchable>, Observer {
 				aNext = recover;
 			}
 		};
-		this.doneByUser.add(getNext);
+		this.doneByUser.push(getNext);
 		this.doneByUndo.clear();
+		this.doneByUndo.push(getNext);
 		return getNext.execute().get();
 	}
 	
@@ -196,28 +200,27 @@ public class WatchList implements Bingeable<AbstractWatchable>, Observer {
 			}
 		};
 		reset.execute();
-		this.doneByUser.add(reset);
+		this.doneByUser.push(reset);
 		this.doneByUndo.clear();
+		this.doneByUndo.push(reset);
 	}
 	
 	public void undo() {
 		if(!this.doneByUser.isEmpty()) {
 			WatchListCommand toUndo = this.doneByUser.pop();
-			this.doneByUndo.add(toUndo);
 			toUndo.undo();
+			this.doneByUndo.push(toUndo);
 		}
 	}
 	
 	public Optional<AbstractWatchable> redo(){
 		if(!this.doneByUndo.isEmpty()) {
 			WatchListCommand toRedo = this.doneByUndo.pop();
-			this.doneByUser.add(toRedo);
+			this.doneByUser.push(toRedo);
+			if(this.doneByUndo.isEmpty()) {
+				this.doneByUndo.push(toRedo);
+			}
 			return toRedo.execute();
-		}
-		else if(this.doneByUndo.isEmpty() && !this.doneByUser.isEmpty()) {
-			WatchListCommand toDo = this.doneByUser.peek();
-			//感觉这里可能会有问题
-			return toDo.execute();
 		}
 		return Optional.empty();
 	}

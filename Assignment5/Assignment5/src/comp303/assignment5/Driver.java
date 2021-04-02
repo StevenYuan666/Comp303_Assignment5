@@ -16,7 +16,23 @@ public class Driver {
 		marvel.addWatchableCommand(m1);
 		marvel.addWatchableCommand(m2);
 		marvel.addWatchableCommand(m3);
-		
+		System.out.println("Initial Name:");
+		System.out.println(marvel.getName());
+		System.out.println("Start setting new name: ");
+		marvel.setName("M1");
+		System.out.println(marvel.getName());
+		marvel.setName("M2");
+		System.out.println(marvel.getName());
+		System.out.println("Start redo: ");
+		marvel.redo();
+		System.out.println(marvel.getName());
+		System.out.println("Start undo: ");
+		marvel.undo();
+		System.out.println(marvel.getName());
+		marvel.undo();
+		System.out.println(marvel.getName());
+		marvel.undo();
+		System.out.println(marvel.getName());
 	}
 
 }
