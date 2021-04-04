@@ -16,11 +16,8 @@ import comp303.assignment5.TVShow.Episode;
  * Represents a single TV show, with at least a title, language, and publishing studio. Each TVShow aggregates episodes.
  */
 public class TVShow  extends AbstractWatchable implements Bingeable<Episode> {
-	private Language aLanguage;
-	private String aStudio;
-	private Map<String, String> aInfo;
+	//Remove all common fields
 	private Optional<Episode> aPrototype = Optional.empty();
-	
 	private List<Episode> aEpisodes = new ArrayList<>();
 	private int aNextToWatch;
 	
@@ -38,50 +35,23 @@ public class TVShow  extends AbstractWatchable implements Bingeable<Episode> {
 	 * @pre pTitle!=null && pLanguage!=null && pStudio!=null
 	 */
 	public TVShow(String pTitle, Language pLanguage, String pStudio, Map<String, String> pCast) {
-		assert pTitle != null && pLanguage != null && pStudio != null;
-		aTitle = pTitle;
-		aLanguage = pLanguage;
-		aStudio = pStudio;
+		//Instantiate the common fields first
+		super(pTitle, pLanguage, pStudio);
 		aNextToWatch = 0;
-		aInfo = new HashMap<>();
 	}
 	
+	/*
+	 * Watch the TVShow and notify all observers to update the most recent watched
+	 */
 	@Override
 	public void watch() {
-		//Need call the super method here
-		super.watch();
-		
 		for (Episode episode : aEpisodes) {
 			if (episode.isValid()) {
 				episode.watch();
 			}
 		}
-	}
-	
-	
-	public Language getLanguage() {
-		return aLanguage;
-	}
-	
-	public String getStudio() {
-		return aStudio;
-	}
-	
-	public String getInfo(String pKey) {
-		return aInfo.get(pKey);
-	}
-	
-	public boolean hasInfo(String pKey) {
-		return aInfo.containsKey(pKey);
-	}
-	
-	public String setInfo(String pKey, String pValue) {
-		if (pValue == null) {
-			return aInfo.remove(pKey);
-		}
-		else {
-			return aInfo.put(pKey, pValue);
-		}
+		//Need call the super method here, since the last watched should be the whole TVShow
+		super.watch();
 	}
 	
 	/**
@@ -194,16 +164,44 @@ public class TVShow  extends AbstractWatchable implements Bingeable<Episode> {
 		return Collections.unmodifiableList(aEpisodes).iterator();
 	}
 	
+	/*
+	 * Since we assume that if a watch list add a TVshow, then all episodes of the TVShow
+	 * will be added to the watch list as well. As a consequence, we need to let all episodes
+	 * add the observer as well
+	 */
+	@Override
+	protected void acceptList(Observer w) {
+		super.acceptList(w);
+		for(int i = 0; i < this.getTotalCount(); i ++) {
+			Episode e = this.getEpisode(i + 1);
+			e.acceptList(w);
+		}
+	}
+
+	/*
+	 * Since we assume that if a watch list remove a TVshow, then all episodes of the TVShow
+	 * will be removed off the watch list as well. As a consequence, we need to let all episodes
+	 * remove the observer as well
+	 */
+	@Override
+	protected void withdrawtList(Observer w) {
+		super.withdrawtList(w);
+		for(int i = 0; i < this.getTotalCount(); i ++) {
+			Episode e = this.getEpisode(i + 1);
+			e.withdrawtList(w);
+		}
+	}
+	
 	/**
 	 * Represents a single episode, with at least a title, and an episode number. Each episode is identified by its path
 	 * on the file system.
 	 */
 	public class Episode extends AbstractWatchable implements Sequenceable<Episode>, Cloneable {
 		
+		//Remove all common fields
 		private File aPath;
 		private int aEpisodeNumber;
 		private Map<String, String> aCast = new HashMap<>();
-		private Map<String, String> aTags = new HashMap<>();
 		
 		/**
 		 * Creates an episode from the file path. This method should not be called by a client. Use
@@ -217,11 +215,15 @@ public class TVShow  extends AbstractWatchable implements Bingeable<Episode> {
 		 *            the episode number that identifies the episode
 		 */
 		private Episode(int pEpisodeNumber, String pTitle, File pPath) {
+			//Instantiate the common fields first
+			super(pTitle, TVShow.this.getLanguage(), TVShow.this.getStudio());
 			aPath = pPath;
-			aTitle = pTitle;
 			aEpisodeNumber = pEpisodeNumber;
 		}
 		
+		/*
+		 * Watch the Episode and notify all observers to update the most recent watched
+		 */
 		@Override
 		public void watch() {
 			//Need call the super method here
@@ -236,14 +238,6 @@ public class TVShow  extends AbstractWatchable implements Bingeable<Episode> {
 		
 		public TVShow getTVShow() {
 			return TVShow.this;
-		}
-		
-		public String getStudio() {
-			return aStudio;
-		}
-		
-		public Language getLanguage() {
-			return aLanguage;
 		}
 		
 		/**
@@ -270,22 +264,6 @@ public class TVShow  extends AbstractWatchable implements Bingeable<Episode> {
 			return Collections.unmodifiableSet(aCast.keySet());
 		}
 		
-		public String setInfo(String pKey, String pValue) {
-			if (pValue == null) {
-				return aTags.remove(pKey);
-			}
-			else {
-				return aTags.put(pKey, pValue);
-			}
-		}
-		
-		public String getInfo(String pKey) {
-			return aTags.get(pKey);
-		}
-		
-		public boolean hasInfo(String pKey) {
-			return aTags.containsKey(pKey);
-		}
 		
 		@Override
 		public boolean hasPrevious() {

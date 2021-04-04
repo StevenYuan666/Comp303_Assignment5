@@ -1,25 +1,16 @@
 package comp303.assignment5;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Represents a single movie, with at least a title, language, and publishing studio. Each movie is identified by its
  * path on the file system.
  */
 public class Movie extends AbstractWatchable implements Sequenceable<Movie> {
-	
+	//Remove all common fields
 	private final File aPath;
-	
-	private Language aLanguage;
-	private String aStudio;
-	
 	private Movie prequel;
-	private Movie sequel;
-	
-	private Map<String, String> aTags = new HashMap<>();
-	
+	private Movie sequel;	
 	
 	
 	/**
@@ -38,16 +29,19 @@ public class Movie extends AbstractWatchable implements Sequenceable<Movie> {
 	 *             if the path doesn't point to a file (e.g., it denotes a directory)
 	 */
 	public Movie(File pPath, String pTitle, Language pLanguage, String pStudio) {
-		assert pPath != null && pTitle != null && pLanguage != null && pStudio != null;
+		//Instantiate the common fields first
+		super(pTitle, pLanguage, pStudio);
+		assert pPath != null;
 		if (pPath.exists() && !pPath.isFile()) {
 			throw new IllegalArgumentException("The path should point to a file.");
 		}
 		aPath = pPath; // ok because File is immutable.
 		aTitle = pTitle;
-		aLanguage = pLanguage;
-		aStudio = pStudio;
 	}
 	
+	/*
+	 * Watch the Movie and notify all observers to update the most recent watched
+	 */
 	@Override
 	public void watch() {
 		//Need call the super method here
@@ -61,34 +55,6 @@ public class Movie extends AbstractWatchable implements Sequenceable<Movie> {
 	@Override
 	public boolean isValid() {
 		return aPath.isFile() && aPath.canRead();
-	}
-	
-	public Language getLanguage() {
-		return aLanguage;
-	}
-	
-	public String getStudio() {
-		return aStudio;
-	}
-	
-	public String setInfo(String pKey, String pValue) {
-		assert pKey != null && !pKey.isBlank();
-		if (pValue == null) {
-			return aTags.remove(pKey);
-		}
-		else {
-			return aTags.put(pKey, pValue);
-		}
-	}
-	
-	public boolean hasInfo(String pKey) {
-		assert pKey != null && !pKey.isBlank();
-		return aTags.containsKey(pKey);
-	}
-	
-	public String getInfo(String pKey) {
-		assert hasInfo(pKey);
-		return aTags.get(pKey);
 	}
 	
 	@Override

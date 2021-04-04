@@ -1,5 +1,12 @@
 package comp303.assignment5;
 
+/*
+ * Don't change the interface Watchable. Instead of, create an abstract class AbtractWatchable
+ * For future enhancement, we may change the Watchable interface as Playable interface, and have
+ * several abstract class like AbstractWatchable, AbstractListenable etc. 
+ */
+
+
 /**
  * Represents a video object that can be watched
  */
