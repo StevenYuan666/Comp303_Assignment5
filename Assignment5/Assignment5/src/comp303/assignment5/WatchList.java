@@ -365,7 +365,7 @@ public class WatchList implements Bingeable<AbstractWatchable>, Observer {
 	/*
 	 * Used to test and show result in Driver
 	 */
-	void getList(){
+	public void getList(){
 		String[] all = new String[aList.size()];
 		for(int i = 0; i < all.length; i ++) {
 			all[i] = this.aList.get(i).getTitle();
